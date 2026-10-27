@@ -1,0 +1,393 @@
+{
+  "info": {
+    "_postman_id": "foodie-cod-backend-api-collection",
+    "name": "Foodie - Strict Cash on Delivery Backend API",
+    "description": "Complete Postman collection for the Foodie Delivery Backend API. Strict Cash on Delivery only. Includes Authentication, Restaurant Management, Food Menu & Budget Discovery, Cart & Order Creation, COD Doorstep Collection Lifecycle, Delivery Partner Operations, Surplus Food Rescue, Real-time Group Ordering, and Administrative Oversight.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api", "type": "string" },
+    { "key": "customerToken", "value": "", "type": "string" },
+    { "key": "ownerToken", "value": "", "type": "string" },
+    { "key": "riderToken", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "restaurantId", "value": "6adb03fc27bdb1b8e0d127a6", "type": "string" },
+    { "key": "orderId", "value": "", "type": "string" },
+    { "key": "groupCode", "value": "", "type": "string" },
+    { "key": "surplusId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01. System & Health",
+      "item": [
+        {
+          "name": "Health Check & DB Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Authentication & RBAC",
+      "item": [
+        {
+          "name": "Seed Test Users",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/auth/seed-test-users", "host": ["{{baseUrl}}"], "path": ["auth", "seed-test-users"] }
+          }
+        },
+        {
+          "name": "Login - Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@foodie.local\",\n  \"password\": \"Customer@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Restaurant Owner",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner@foodie.local\",\n  \"password\": \"Owner@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Delivery Partner",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"rider@foodie.local\",\n  \"password\": \"Rider@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@foodie.local\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/profile", "host": ["{{baseUrl}}"], "path": ["auth", "profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Restaurant & Menu Discovery",
+      "item": [
+        {
+          "name": "Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/restaurants", "host": ["{{baseUrl}}"], "path": ["restaurants"] }
+          }
+        },
+        {
+          "name": "Get Restaurant Menu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/restaurants/{{restaurantId}}/menu", "host": ["{{baseUrl}}"], "path": ["restaurants", "{{restaurantId}}", "menu"] }
+          }
+        },
+        {
+          "name": "Budget Meal Discovery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/food/budget-discovery?budget=500&isVegetarian=true", "host": ["{{baseUrl}}"], "path": ["food", "budget-discovery"], "query": [{ "key": "budget", "value": "500" }, { "key": "isVegetarian", "value": "true" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Cart & Cash on Delivery Orders",
+      "item": [
+        {
+          "name": "Create Order (Strict COD)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"items\": [\n    {\n      \"foodItem\": \"6adb007a04fd4748c6eb7122\",\n      \"quantity\": 2\n    }\n  ],\n  \"deliveryAddress\": {\n    \"street\": \"45 Palm Avenue\",\n    \"city\": \"Metro Hub\",\n    \"state\": \"Central\",\n    \"postalCode\": \"400001\"\n  },\n  \"deliveryNotes\": \"Please carry exact change for Rs. 500\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+          }
+        },
+        {
+          "name": "Get Customer Order History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/orders/my-orders", "host": ["{{baseUrl}}"], "path": ["orders", "my-orders"] }
+          }
+        },
+        {
+          "name": "Rider - Collect Cash at Doorstep",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amountCollected\": 450,\n  \"cashDenominations\": {\n    \"500\": 1,\n    \"changeReturned\": 50\n  },\n  \"riderNotes\": \"Received Rs. 500 note, returned Rs. 50 change.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/collect-cod", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "collect-cod"] }
+          }
+        },
+        {
+          "name": "Admin - Reconcile Cash Handover",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reconciledAmount\": 450,\n  \"adminNotes\": \"Cash verified and deposited in safe.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/reconcile-cod", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "reconcile-cod"] }
+          }
+        },
+        {
+          "name": "Admin - COD Reconciliation Audit Report",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/orders/cod/reconciliation-report", "host": ["{{baseUrl}}"], "path": ["orders", "cod", "reconciliation-report"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Kitchen & Rider Operations",
+      "item": [
+        {
+          "name": "Kitchen - View Active Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/orders/restaurant/active", "host": ["{{baseUrl}}"], "path": ["orders", "restaurant", "active"] }
+          }
+        },
+        {
+          "name": "Kitchen - Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"PREPARING\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/status", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "status"] }
+          }
+        },
+        {
+          "name": "Rider - Toggle Online Availability",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isAvailable\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/operations/riders/availability", "host": ["{{baseUrl}}"], "path": ["operations", "riders", "availability"] }
+          }
+        },
+        {
+          "name": "Assign Delivery Partner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deliveryPartnerId\": \"6adb007a04fd4748c6eb7118\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/assign-rider", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "assign-rider"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Surplus-Food Rescue",
+      "item": [
+        {
+          "name": "Get Active Surplus Listings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/operations/surplus", "host": ["{{baseUrl}}"], "path": ["operations", "surplus"] }
+          }
+        },
+        {
+          "name": "Owner - Publish Surplus Listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"name\": \"[Surplus] Artisan Dumpling Feast\",\n  \"description\": \"Excess freshly steamed dim sum from evening rush, packaged for rescue pickup.\",\n  \"originalPrice\": 380,\n  \"discountPrice\": 160,\n  \"quantityAvailable\": 5,\n  \"availableHours\": 2,\n  \"isVegetarian\": false\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/operations/surplus", "host": ["{{baseUrl}}"], "path": ["operations", "surplus"] }
+          }
+        },
+        {
+          "name": "Customer - Reserve Surplus Meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/operations/surplus/{{surplusId}}/reserve", "host": ["{{baseUrl}}"], "path": ["operations", "surplus", "{{surplusId}}", "reserve"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Group Ordering",
+      "item": [
+        {
+          "name": "Host - Create Order Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/group", "host": ["{{baseUrl}}"], "path": ["orders", "group"] }
+          }
+        },
+        {
+          "name": "Member - Join Order Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{groupCode}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/group/{{groupCode}}/join", "host": ["{{baseUrl}}"], "path": ["orders", "group", "{{groupCode}}", "join"] }
+          }
+        },
+        {
+          "name": "Host - Checkout Group (COD Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deliveryAddress\": {\n    \"street\": \"10 Tech Park\",\n    \"city\": \"Metro Hub\",\n    \"state\": \"Central\",\n    \"postalCode\": \"400001\"\n  },\n  \"deliveryNotes\": \"Group order COD payment collected at reception\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/group/{{groupCode}}/checkout", "host": ["{{baseUrl}}"], "path": ["orders", "group", "{{groupCode}}", "checkout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Admin Oversight",
+      "item": [
+        {
+          "name": "Admin - Platform Overview & Financial Ledger",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/operations/admin/overview", "host": ["{{baseUrl}}"], "path": ["operations", "admin", "overview"] }
+          }
+        },
+        {
+          "name": "Admin - User Management Directory",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/operations/admin/users?role=CUSTOMER", "host": ["{{baseUrl}}"], "path": ["operations", "admin", "users"], "query": [{ "key": "role", "value": "CUSTOMER" }] }
+          }
+        },
+        {
+          "name": "Admin - Toggle User Account Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/operations/admin/users/6adb31153634ad7bffde4489/status", "host": ["{{baseUrl}}"], "path": ["operations", "admin", "users", "6adb31153634ad7bffde4489", "status"] }
+          }
+        },
+        {
+          "name": "Admin - Moderate & Delete Surplus Listing",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/operations/admin/surplus/{{surplusId}}", "host": ["{{baseUrl}}"], "path": ["operations", "admin", "surplus", "{{surplusId}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}
