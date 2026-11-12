@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foodie-backend-deployment
+  labels:
+    app: foodie-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foodie-backend
+  template:
+    metadata:
+      labels:
+        app: foodie-backend
+    spec:
+      containers:
+        - name: foodie-backend
+          image: jaideep55/foodie-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+            - name: NODE_ENV
+              value: "production"
+            - name: CLIENT_URL
+              value: "http://localhost:8085"
+            - name: MONGODB_URI
+              value: "mongodb://ballajaideep_db_user:zZe2ydPfvYsFIrXS@ac-45j9jmh-shard-00-00.b1ozrtu.mongodb.net:27017,ac-45j9jmh-shard-00-01.b1ozrtu.mongodb.net:27017,ac-45j9jmh-shard-00-02.b1ozrtu.mongodb.net:27017/foodie_db?ssl=true&replicaSet=atlas-92jp4u-shard-0&authSource=admin"
+            - name: JWT_SECRET
+              value: "foodie_dev_jwt_super_secret_key_2026_x87b1c"
+            - name: JWT_EXPIRES_IN
+              value: "7d"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foodie-frontend-deployment
+  labels:
+    app: foodie-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foodie-frontend
+  template:
+    metadata:
+      labels:
+        app: foodie-frontend
+    spec:
+      containers:
+        - name: foodie-frontend
+          image: jaideep55/foodie-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80

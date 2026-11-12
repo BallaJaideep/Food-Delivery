@@ -1,0 +1,33 @@
+# Internal ClusterIP service so frontend nginx can proxy /api/ to backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: foodie-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: foodie-backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+---
+# NodePort service exposing Frontend to browser outside Minikube
+apiVersion: v1
+kind: Service
+metadata:
+  name: foodie-frontend-service
+  labels:
+    app: foodie-frontend
+spec:
+  type: NodePort
+  selector:
+    app: foodie-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+
